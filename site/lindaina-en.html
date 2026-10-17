@@ -88,6 +88,19 @@ a.al-v:hover{text-decoration:underline}
   background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,.45);
   transform:translateY(-100%);transition:transform .7s cubic-bezier(.2,1,.3,1) .3s}
 .al.is-desk .al-menu{transform:none}
+.al .al-menu{z-index:30}
+.al .al-menu-r{display:flex;align-items:center;gap:14px}
+.al .al-lang{position:relative;pointer-events:auto}
+.al .al-lang-b{font-size:10.5px;font-weight:600;letter-spacing:.03em;line-height:1;padding:2px 4px;border:1.3px solid currentColor;border-radius:4px}
+.al .al-lang-m{position:absolute;right:-6px;top:calc(100% + 9px);min-width:168px;padding:5px;border-radius:12px;display:none;flex-direction:column;font-size:13px;font-weight:400;z-index:40}
+.al .al-lang.is-open .al-lang-m{display:flex}
+.al .al-lang-m.glass{background:linear-gradient(140deg,rgba(255,255,255,.34),rgba(var(--tint),.5))}
+.al .al-lang-m span,.al .al-lang-m a{display:flex;align-items:center;padding:6px 9px;border-radius:7px;white-space:nowrap}
+.al .al-lang-m i{width:18px;font-style:normal}
+.al .al-lang-m a:hover,.al .al-lang-m a:focus-visible{background:rgba(255,255,255,.32)}
+.al .al-st-r{display:flex;align-items:center;gap:10px}
+.al .al-status .al-lang-b{font-size:11px;padding:2px 5px}
+.al .al-status{z-index:30}
 .al-menu-l{display:flex;gap:20px;align-items:center}
 .al-menu-l img{width:16px;height:16px;border-radius:4px}
 .al-menu-l b{font-weight:600}
@@ -412,7 +425,7 @@ a.al-v:hover{text-decoration:underline}
           <button type="button" data-open="about">About</button>
           <button type="button" data-open="mail">Contact</button>
         </div>
-        <div class="al-menu-r" id="al-menu-time"></div>
+        <div class="al-menu-r"><div class="al-lang"><button type="button" class="al-lang-b" aria-haspopup="true" aria-expanded="false" aria-label="Language">EN</button><div class="al-lang-m glass" role="menu"><span class="is-on"><i>✓</i>English</span><a href="https://ainalind.ru/" role="menuitem" hreflang="ru"><i></i>Русский</a></div></div><span id="al-menu-time"></span></div>
       </header>
 
       <div class="al-widgets">
@@ -430,7 +443,7 @@ a.al-v:hover{text-decoration:underline}
       <nav class="al-dock glass" id="al-dock" aria-label="Dock"></nav>
 
       <!-- phone -->
-      <div class="al-status"><span id="al-st-time"></span><svg viewBox="0 0 64 12" aria-hidden="true"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="1" width="3" height="11" rx="1"/><rect x="36" y="1" width="24" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="38" y="3" width="17" height="7" rx="1.5"/><rect x="61" y="4.5" width="2" height="4" rx="1"/></svg></div>
+      <div class="al-status"><span id="al-st-time"></span><div class="al-st-r"><div class="al-lang"><button type="button" class="al-lang-b" aria-haspopup="true" aria-expanded="false" aria-label="Language">EN</button><div class="al-lang-m glass" role="menu"><span class="is-on"><i>✓</i>English</span><a href="https://ainalind.ru/" role="menuitem" hreflang="ru"><i></i>Русский</a></div></div><svg viewBox="0 0 64 12" aria-hidden="true"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="1" width="3" height="11" rx="1"/><rect x="36" y="1" width="24" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="38" y="3" width="17" height="7" rx="1.5"/><rect x="61" y="4.5" width="2" height="4" rx="1"/></svg></div></div>
       <div class="al-phone">
         <div class="al-pw">
           <section class="al-w glass" aria-label="Calendar"><div class="al-cal-m" id="al-pcal-m"></div><div class="al-cal-d" id="al-pcal-d"></div></section>
@@ -907,6 +920,15 @@ a.al-v:hover{text-decoration:underline}
   document.querySelectorAll('[data-open]').forEach(function(b){ b.addEventListener('click', function(){ openApp(b.dataset.open); }); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ var all = wins.querySelectorAll('.al-win'); if(all.length) all[all.length-1].querySelector('.al-tl--r').click(); } });
 
+
+  /* language switcher: EN here, RU goes to ainalind.ru */
+  Array.prototype.forEach.call(document.querySelectorAll('.al-lang'), function(l){
+    var b = l.querySelector('.al-lang-b');
+    b.addEventListener('click', function(e){ e.stopPropagation(); var o = l.classList.toggle('is-open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+  });
+  document.addEventListener('click', function(e){
+    Array.prototype.forEach.call(document.querySelectorAll('.al-lang.is-open'), function(l){ if(!l.contains(e.target)){ l.classList.remove('is-open'); l.querySelector('.al-lang-b').setAttribute('aria-expanded','false'); } });
+  });
   /* deep link for review: #desk skips the intro */
   if(location.hash === '#desk'){ started = true; noted = true; lightOn(); openDesk(); }
 })();
