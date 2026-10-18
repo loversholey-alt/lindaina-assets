@@ -1,0 +1,940 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: intro video → glass iOS notification → macOS desktop on silk wallpaper (widgets left, glass folders right, dock bottom); under 760px the desktop becomes an iPhone home screen. Scoped under .al for a Tilda T123 block. */
+body{background:#eef2f8}
+.t-rec:has(.al) .t123{padding:0}
+.al{
+  --ink:#fff; --ink-2:rgba(255,255,255,.8); --ink-3:rgba(255,255,255,.62); --tint:96,108,156;
+  --g-bg:rgba(255,255,255,.34); --g-bg-2:rgba(255,255,255,.62); --g-line:rgba(255,255,255,.66); --g-shadow:rgba(52,62,104,.18);
+  --sky:#d7e6f8; --cream:#f6efe4; --btn-ink:#2a2c3a;
+  --font:'Geist',ui-sans-serif,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+  position:relative;height:100vh;height:100dvh;min-height:560px;overflow:hidden;color-scheme:light;
+  background:linear-gradient(180deg,var(--sky),var(--cream));color:var(--ink);font-family:var(--font);text-shadow:0 1px 2px rgba(50,60,100,.16);
+  -webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.al *,.al *::before,.al *::after{box-sizing:border-box}
+.al button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer}
+.al a{color:inherit;text-decoration:none}
+.al img{display:block;max-width:none}
+.al :focus-visible{outline:2px solid rgba(255,255,255,.9);outline-offset:3px}
+
+/* liquid glass */
+.al .glass{
+  background:linear-gradient(140deg,rgba(255,255,255,.3),rgba(var(--tint),.2) 55%,rgba(var(--tint),.3));
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 1px rgba(255,255,255,.15),0 14px 40px rgba(52,62,104,.14);
+}
+
+/* stronger tint where glass sits on the pale intro frame */
+.al .al-note.glass,.al .al-card.glass{background:linear-gradient(140deg,rgba(255,255,255,.2),rgba(var(--tint),.4) 55%,rgba(var(--tint),.5))}
+
+/* ---------- intro ---------- */
+.al-intro{position:absolute;inset:0;z-index:2;background:#0d0d0f;cursor:pointer;transition:opacity 1.1s ease,transform 1.4s cubic-bezier(.2,.8,.2,1),filter 1.2s ease}
+.al-intro video,.al-intro img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.al-intro img{opacity:0;transition:opacity .4s}
+.al-intro.is-done{cursor:default}
+.al.is-desk .al-intro{opacity:0;transform:scale(1.08);filter:blur(16px);pointer-events:none}
+.al-hint{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);transition:opacity .6s}
+.al-intro.is-play .al-hint{opacity:0}
+
+/* ---------- notification ---------- */
+.al-note{position:absolute;z-index:20;top:calc(14px + env(safe-area-inset-top,0px));left:50%;width:min(400px,calc(100% - 16px));
+  padding:13px 13px 13px 14px;border-radius:28px;transform:translate(-50%,calc(-100% - 40px));transition:transform .45s cubic-bezier(.5,0,.75,0)}
+.al-note.is-in{transform:translate(-50%,0);transition:transform .85s cubic-bezier(.2,1.3,.35,1)}
+.al-note-row{display:flex;gap:12px;align-items:center}
+.al-note-ic{flex:none;width:42px;height:42px;border-radius:11px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.al-note-ic img{width:100%;height:100%}
+.al-note-txt{flex:1;min-width:0}
+.al-note-head{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink-2)}
+.al-note-head b{color:var(--ink);font-weight:600}
+.al-note-body{font-size:15px;font-weight:500;line-height:1.3;margin-top:1px}
+.al-note-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.al .al-btn{height:40px;padding:0 18px;border-radius:999px;font-size:14px;font-weight:600;transition:background .25s,transform .2s}
+.al .al-btn:active{transform:scale(.97)}
+.al .al-btn--ghost{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.6);color:#fff}
+.al .al-btn--ghost:hover{background:rgba(255,255,255,.26)}
+.al .al-btn--main{background:linear-gradient(120deg,rgba(255,233,216,.94),rgba(224,230,255,.94));color:var(--btn-ink);text-shadow:none;border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1px 0 #fff,0 8px 20px rgba(60,70,120,.16)}
+.al .al-btn--main:hover{background:linear-gradient(120deg,#fff0e4,#ebeeff)}
+
+/* ---------- contact card ---------- */
+.al-card{position:absolute;z-index:19;left:50%;bottom:calc(9vh + env(safe-area-inset-bottom,0px));width:min(380px,calc(100% - 32px));padding:22px 22px 18px;border-radius:30px;
+  opacity:0;visibility:hidden;transform:translate(-50%,24px) scale(.98);transition:opacity .4s,transform .5s cubic-bezier(.2,1,.3,1),visibility 0s .5s}
+.al-card.is-in{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .5s,transform .7s cubic-bezier(.2,1.2,.3,1),visibility 0s}
+.al-kicker{margin:0 0 6px;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.al-name{margin:0 0 16px;font-size:34px;font-weight:600;letter-spacing:-.035em;line-height:1}
+.al-list{list-style:none;margin:0;padding:0}
+.al-list li{display:grid;grid-template-columns:84px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:46px;border-top:1px solid rgba(255,255,255,.22);font-size:15px}
+.al-k{font-size:13px;color:var(--ink-3)}
+.al-v{min-width:0;overflow-wrap:anywhere;-webkit-user-select:text;user-select:text}
+a.al-v:hover{text-decoration:underline}
+.al .al-v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.al .al-copy{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.55)}
+.al .al-wide{width:100%;margin-top:12px}
+
+/* ---------- desktop ---------- */
+.al-desk{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity 1s ease .2s}
+.al.is-desk .al-desk{opacity:1}
+.al-wall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:30% 50%;transform:scale(1.06);transition:transform 2.2s cubic-bezier(.2,.8,.2,1)}
+.al-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--tint),.2),rgba(var(--tint),.06) 45%,rgba(var(--tint),.16))}
+.al.is-desk .al-wall{transform:none}
+.al-desk-ui{position:absolute;inset:0;pointer-events:none}
+.al.is-desk .al-desk-ui{pointer-events:auto}
+.al-in{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .8s cubic-bezier(.2,1.2,.3,1)}
+.al.is-desk .al-in{opacity:1;transform:none;transition-delay:var(--d,.4s)}
+
+.al-menu{position:absolute;top:0;left:0;right:0;height:30px;padding:0 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;
+  background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,.45);
+  transform:translateY(-100%);transition:transform .7s cubic-bezier(.2,1,.3,1) .3s}
+.al.is-desk .al-menu{transform:none}
+.al .al-menu{z-index:30}
+.al .al-menu-r{display:flex;align-items:center;gap:14px}
+.al .al-lang{position:relative;pointer-events:auto}
+.al .al-lang-b{font-size:10.5px;font-weight:600;letter-spacing:.03em;line-height:1;padding:2px 4px;border:1.3px solid currentColor;border-radius:4px}
+.al .al-lang-m{position:absolute;right:-6px;top:calc(100% + 9px);min-width:168px;padding:5px;border-radius:12px;display:none;flex-direction:column;font-size:13px;font-weight:400;z-index:40}
+.al .al-lang.is-open .al-lang-m{display:flex}
+.al .al-lang-m.glass{background:linear-gradient(140deg,rgba(255,255,255,.34),rgba(var(--tint),.5))}
+.al .al-lang-m span,.al .al-lang-m a{display:flex;align-items:center;padding:6px 9px;border-radius:7px;white-space:nowrap}
+.al .al-lang-m i{width:18px;font-style:normal}
+.al .al-lang-m a:hover,.al .al-lang-m a:focus-visible{background:rgba(255,255,255,.32)}
+.al .al-st-r{display:flex;align-items:center;gap:10px}
+.al .al-status .al-lang-b{font-size:11px;padding:2px 5px}
+.al .al-status{z-index:30}
+.al-menu-l{display:flex;gap:20px;align-items:center}
+.al-menu-l img{width:16px;height:16px;border-radius:4px}
+.al-menu-l b{font-weight:600}
+.al-menu-l button{font-weight:400}
+.al-menu-r{font-variant-numeric:tabular-nums}
+
+/* widgets */
+.al-widgets{position:absolute;top:58px;left:32px;display:flex;flex-direction:column;gap:16px;width:330px}
+.al-w{border-radius:26px;padding:18px 20px}
+.al-cal-top{display:flex;justify-content:space-between;align-items:flex-end}
+.al-cal-m{font-size:46px;font-weight:300;letter-spacing:-.03em;line-height:1}
+.al-cal-d{font-size:46px;font-weight:300;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.al-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:16px;text-align:center}
+.al-week span{font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.al-week b{font-size:15px;font-weight:500;padding:5px 0;border-radius:9px;font-variant-numeric:tabular-nums}
+.al-week b.is-today{background:rgba(255,255,255,.95);color:rgb(var(--tint));text-shadow:none;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.al-clock{display:flex;justify-content:space-between;align-items:center}
+.al-clock-t{font-size:64px;font-weight:300;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.al-clock-s{text-align:right;font-size:13px;color:var(--ink-2);line-height:1.5}
+.al-clock-s b{display:block;color:var(--ink);font-weight:500;font-size:14px}
+
+/* folders */
+.al-folders{position:absolute;top:70px;right:clamp(28px,5vw,90px);display:grid;grid-template-columns:repeat(2,230px);gap:34px 40px}
+.al-fold{position:relative;width:230px;height:236px;display:block;text-align:left}
+.al-fold-back{position:absolute;left:0;right:0;bottom:24px;height:150px;border-radius:20px;
+  background:linear-gradient(160deg,rgba(255,255,255,.42),rgba(var(--tint),.26));border:1px solid rgba(255,255,255,.55);box-shadow:0 18px 40px rgba(52,62,104,.16)}
+.al-fold-p{position:absolute;bottom:84px;width:160px;height:104px;border-radius:8px;object-fit:cover;object-position:top;border:3px solid #fff;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);transition:transform .55s cubic-bezier(.2,1.4,.3,1)}
+.al-fold-p.p1{left:12px;transform:rotate(-9deg)}
+.al-fold-p.p2{left:35px;transform:translateY(-14px) rotate(1deg);z-index:1}
+.al-fold-p.p3{left:auto;right:10px;width:72px;height:128px;transform:rotate(9deg)}
+.al-fold:hover .p1,.al-fold:focus-visible .p1{transform:translate(-16px,-12px) rotate(-15deg)}
+.al-fold:hover .p2,.al-fold:focus-visible .p2{transform:translateY(-34px) rotate(0deg)}
+.al-fold:hover .p3,.al-fold:focus-visible .p3{transform:translate(14px,-18px) rotate(15deg)}
+.al-fold-front{position:absolute;left:0;bottom:24px;width:230px;height:122px;z-index:2;
+  -webkit-backdrop-filter:blur(14px) saturate(170%);backdrop-filter:blur(14px) saturate(170%);
+  background:linear-gradient(170deg,rgba(255,255,255,.36),rgba(var(--tint),.3));
+  clip-path:path('M0 20 Q0 0 20 0 L92 0 Q104 0 110 10 L118 24 Q124 34 136 34 L210 34 Q230 34 230 54 L230 102 Q230 122 210 122 L20 122 Q0 122 0 102 Z');
+  transition:transform .4s cubic-bezier(.2,1.2,.3,1)}
+.al-fold-edge{position:absolute;left:0;bottom:24px;width:230px;height:122px;z-index:3;pointer-events:none;overflow:visible}
+.al-fold-edge path{fill:none;stroke:rgba(255,255,255,.9);stroke-width:1.2}
+.al-fold-lab{position:absolute;left:18px;right:16px;bottom:38px;z-index:4;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.al-fold-t{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.al-fold-y{display:block;font-size:12px;color:var(--ink-2);margin-top:3px}
+.al-fold-arr{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,.85);color:#fff;display:grid;place-items:center;transition:transform .3s,background .3s}
+.al-fold:hover .al-fold-arr{background:rgba(255,255,255,.2)}
+.al-fold-arr svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.al-fold:hover .al-fold-arr{transform:rotate(45deg)}
+.al-fold-cap{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:12px;font-weight:500;color:var(--ink-2)}
+.al-fold.is-sel .al-fold-cap{color:var(--ink)}
+.al-fold.is-sel .al-fold-back{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.7),0 18px 40px rgba(52,62,104,.2)}
+
+/* dock */
+.al-dock{position:absolute;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:6px;padding:7px 8px;border-radius:24px;
+  transform:translate(-50%,calc(100% + 40px));transition:transform .9s cubic-bezier(.2,1.15,.3,1) .5s}
+.al.is-desk .al-dock{transform:translate(-50%,0)}
+.al-dk{position:relative;width:54px;height:54px;flex:none;transition:width .18s ease,height .18s ease}
+.al-dk img{width:100%;height:100%;filter:drop-shadow(0 3px 5px rgba(0,0,0,.15))}
+.al-dk.is-sq img{border-radius:22.5%;transform:scale(.84)}
+.al-dk::after{content:attr(data-label);position:absolute;bottom:calc(100% + 14px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-weight:500;
+  padding:4px 10px;border-radius:8px;background:rgba(var(--tint),.5);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.5);
+  opacity:0;pointer-events:none;transition:opacity .15s}
+.al-dk:hover::after,.al-dk:focus-visible::after{opacity:1}
+.al-dk-dot{position:absolute;left:50%;bottom:-5px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--ink-2);opacity:0}
+.al-dk.is-open .al-dk-dot{opacity:1}
+.al-dock-sep{width:1px;align-self:stretch;margin:6px 3px;background:rgba(255,255,255,.45)}
+
+/* windows */
+.al-win{position:absolute;z-index:10;left:50%;top:50%;width:min(900px,calc(100% - 40px));height:min(620px,calc(100% - 140px));display:flex;flex-direction:column;border-radius:22px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(255,255,255,.26),rgba(var(--tint),.42) 40%,rgba(var(--tint),.5));-webkit-backdrop-filter:blur(36px) saturate(170%);backdrop-filter:blur(36px) saturate(170%);
+  border:1px solid rgba(255,255,255,.5);box-shadow:0 40px 90px rgba(40,46,80,.28),inset 0 1px 0 rgba(255,255,255,.6);
+  transform:translate(-50%,-46%) scale(.94);opacity:0;transition:transform .45s cubic-bezier(.2,1.2,.3,1),opacity .25s}
+.al-win.is-in{transform:translate(-50%,-50%) scale(1);opacity:1}
+.al-win.is-max{width:calc(100% - 24px);height:calc(100% - 120px)}
+.al-win.is-sm{width:min(440px,calc(100% - 40px));height:auto;max-height:calc(100% - 170px)}
+.al-bar{flex:none;height:46px;display:flex;align-items:center;gap:8px;padding:0 16px;cursor:grab;position:relative}
+.al-bar:active{cursor:grabbing}
+.al .al-tl{width:13px;height:13px;border-radius:50%;flex:none;position:relative;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2)}
+.al .al-tl--r{background:#ff5f57}.al .al-tl--y{background:#febc2e}.al .al-tl--g{background:#28c840}
+.al .al-tl::after{content:"";position:absolute;inset:0;background:center/9px no-repeat;opacity:0;transition:opacity .12s}
+.al .al-tl--r::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%234d0000' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M3.5 3.5l5 5M8.5 3.5l-5 5'/%3E%3C/svg%3E")}.al .al-tl--y::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23995700' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M3 6h6'/%3E%3C/svg%3E")}.al .al-tl--g::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='%23006500'%3E%3Cpath d='M3.2 8.8V4.6l4.2 4.2zM8.8 3.2v4.2L4.6 3.2z'/%3E%3C/svg%3E")}
+.al .al-bar:hover .al-tl::after,.al .al-tl:focus-visible::after{opacity:1}
+.al-bar-t{position:absolute;left:50%;transform:translateX(-50%);font-size:13px;font-weight:600;color:var(--ink-2);white-space:nowrap}
+.al-body{flex:1;overflow:auto;padding:0 22px 22px;-webkit-user-select:text;user-select:text}
+.al-case-hero{border-radius:16px;overflow:hidden;background:#ececf0;aspect-ratio:16/8.9;max-width:100%}
+.al-case-hero img{width:100%;height:100%;object-fit:cover}
+.al-case-info{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end;margin:20px 2px 18px}
+.al-case-info h2{margin:0 0 8px;font-size:34px;font-weight:600;letter-spacing:-.035em;line-height:1;text-wrap:balance}
+.al-case-info p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2);max-width:56ch}
+.al-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.al-tags span{font-size:12px;font-weight:500;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3)}
+.al-case-acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.al-case-acts a{display:inline-flex;align-items:center}
+.al-gal{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x mandatory}
+.al-gal button{flex:none;border-radius:12px;overflow:hidden;scroll-snap-align:start;box-shadow:0 4px 14px rgba(0,0,0,.08);background:#f3f3f6}
+.al-gal img{height:180px;width:auto}
+.al-gal .is-m img{height:180px}
+.al-zoom{position:absolute;inset:46px 0 0;z-index:2;background:rgba(246,247,250,.96);display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.al-zoom.is-in{opacity:1;pointer-events:auto}
+.al-zoom img{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.18)}
+.al-txt h2{margin:6px 0 10px;font-size:28px;font-weight:600;letter-spacing:-.03em}
+.al-txt p{margin:0 0 12px;font-size:15px;line-height:1.55;color:var(--ink-2);max-width:60ch}
+.al-svc{list-style:none;margin:6px 0 0;padding:0}
+.al-svc li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.22);font-size:15px}
+.al-svc li span:last-child{color:var(--ink-3)}
+.al-ph{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.al-ph button{border-radius:10px;overflow:hidden;aspect-ratio:16/10}
+.al-ph img{width:100%;height:100%;object-fit:cover;object-position:top}
+.al-mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-top:10px}
+.al-mcal span{font-size:11px;color:var(--ink-3);padding-bottom:4px}
+.al-mcal b{font-weight:500;font-size:15px;padding:9px 0;border-radius:10px;font-variant-numeric:tabular-nums}
+.al-mcal b.is-today{background:rgba(255,255,255,.95);color:rgb(var(--tint));text-shadow:none}
+
+
+/* info windows (cases) */
+.al-info-h{display:flex;gap:14px;align-items:center;margin:4px 0 14px}
+.al-info-h img{width:64px;height:64px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.al-info-h b{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em}
+.al-info-h span{display:block;font-size:14px;color:var(--ink-2);margin-top:2px}
+.al-info-t{margin:0 0 14px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);font-size:15px;line-height:1.55;max-width:none}
+.al-det{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px;margin:0 2px 16px}
+.al-det b{font-weight:600}
+.al-det i{font-style:normal;color:var(--ink-3)}
+.al-prev-h{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 2px 10px;font-size:14px;font-weight:600}
+.al-seg2{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3)}
+.al .al-seg2 button{font-size:13px;font-weight:500;padding:5px 14px;border-radius:999px}
+.al .al-seg2 button[aria-pressed="true"]{background:rgba(255,255,255,.9);color:var(--btn-ink);text-shadow:none}
+.al-acts-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.al-acts-row a{display:inline-flex;align-items:center}
+
+/* split windows: Notes, Photos */
+.al-win.is-split .al-body{padding:0;display:grid;grid-template-columns:190px minmax(0,1fr);overflow:hidden}
+.al-side{padding:6px 10px 16px;border-right:1px solid rgba(255,255,255,.22);overflow:auto;display:flex;flex-direction:column;gap:2px}
+.al .al-side button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;font-size:14px;padding:9px 10px;border-radius:9px}
+.al .al-side button:hover{background:rgba(255,255,255,.12)}
+.al .al-side button.is-on{background:rgba(255,255,255,.24)}
+.al-side i{font-style:normal;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.al-side-h{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:12px 10px 4px}
+.al-main{overflow:auto;padding:6px 24px 24px;min-width:0}
+.al-main h3{margin:14px 0 10px;font-size:15px;font-weight:600}
+.al-main h3:first-child{margin-top:4px}
+.al-main p{margin:0 0 12px;font-size:15px;line-height:1.55;max-width:62ch}
+.al-chk{list-style:none;margin:0 0 6px;padding:0}
+.al-chk li{display:flex;align-items:center;gap:10px;font-size:15px;padding:5px 0}
+.al-chk li::before{content:"";flex:none;width:18px;height:18px;border-radius:50%;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232a2c3a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/11px no-repeat,linear-gradient(135deg,#ffe3cf,#dfe4ff);box-shadow:inset 0 0 0 1px rgba(255,255,255,.9)}
+.al-chk li.is-soft::before{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.75)}
+.al-chk button{text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:3px}
+
+/* photos */
+.al-pfolds{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.al .al-pfold{position:relative;height:150px;border-radius:16px;padding:12px;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;
+  background:linear-gradient(160deg,rgba(255,255,255,.34),rgba(var(--tint),.28));border:1px solid rgba(255,255,255,.5);transition:transform .3s cubic-bezier(.2,1.4,.3,1)}
+.al .al-pfold:hover{transform:translateY(-3px)}
+.al-pfold img{position:absolute;top:12px;height:84px;width:auto;border-radius:6px;border:2px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.14)}
+.al-pfold img:nth-child(1){left:14px;transform:rotate(-6deg)}
+.al-pfold img:nth-child(2){left:52px;transform:rotate(2deg)}
+.al-pfold img:nth-child(3){left:92px;transform:rotate(8deg)}
+.al-pfold b{position:relative;font-size:15px;font-weight:600}
+.al-pfold span{position:relative;font-size:12px;color:var(--ink-2)}
+.al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.al-grid.is-m{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.al .al-grid button{border-radius:10px;overflow:hidden;aspect-ratio:16/10;background:rgba(255,255,255,.2)}
+.al-grid.is-m button{aspect-ratio:9/19}
+.al-grid img{width:100%;height:100%;object-fit:cover;object-position:top}
+.al .al-back{font-size:13px;font-weight:500;margin:6px 0 10px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35)}
+
+/* figma canvas */
+.al-canvas{margin:0 -22px -22px;padding:28px;min-height:100%;background:#f3f3f5;color:#3a3a44;text-shadow:none;display:flex;flex-wrap:wrap;gap:34px 28px;align-items:flex-start;
+  background-image:radial-gradient(rgba(0,0,0,.08) 1px,transparent 1px);background-size:18px 18px}
+.al-frame{display:flex;flex-direction:column;gap:6px}
+.al-frame span{font-size:11px;color:#8a8a96}
+.al .al-frame button{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.al-frame img{display:block;height:150px;width:auto}
+.al-frame.is-m img{height:150px}
+
+/* wallet */
+.al-wallet{display:flex;flex-direction:column;align-items:center;padding:6px 0 10px}
+.al .al-wc{--w:min(360px,100%);position:relative;width:var(--w);aspect-ratio:1.586;flex:none;border-radius:16px;text-align:left;color:#fff;text-shadow:0 1px 3px rgba(40,40,80,.35);
+  box-shadow:0 10px 26px rgba(40,46,80,.22);transition:margin .45s cubic-bezier(.2,1,.3,1),transform .3s}
+.al-wc + .al-wc{margin-top:calc(var(--w) / -1.586 + 62px)}
+.al-wc.is-open + .al-wc{margin-top:16px}
+.al .al-wc:hover{transform:translateY(-4px)}
+.al-wc img.bg{position:absolute;inset:0;width:100%;height:100%;border-radius:16px}
+.al-wc-in{position:absolute;inset:0;padding:16px 18px;display:flex;flex-direction:column}
+.al-wc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.al-wc-top b{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.al-wc-top img{width:26px;height:26px;border-radius:7px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.al-wc-price{margin-top:auto;font-size:32px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.al-wc-meta{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:rgba(255,255,255,.92);margin-top:4px}
+.al .al-wc{isolation:isolate}
+.al-wc::before{content:"";position:absolute;inset:0;border-radius:16px;background:linear-gradient(160deg,rgba(70,60,130,.16),rgba(70,60,130,.36));z-index:0}
+.al-wc-in{z-index:1}
+
+
+/* minimized windows in dock */
+.al-dk.is-mini img{border-radius:8px;object-fit:cover;transform:scale(.82)}
+
+/* case preview: browser + iPhone fan */
+.al-browser{border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 18px 40px rgba(30,30,70,.22);border:1px solid rgba(255,255,255,.6)}
+.al-browser-bar{height:34px;display:flex;align-items:center;gap:7px;padding:0 12px;background:rgba(245,245,248,.96);color:#55576a;text-shadow:none}
+.al-browser-bar i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.al-browser-bar i+i{background:#febc2e}.al-browser-bar i+i+i{background:#28c840}
+.al-browser-bar span{flex:1;margin:0 40px 0 14px;height:22px;border-radius:7px;background:rgba(0,0,0,.05);font-size:12px;display:grid;place-items:center}
+.al-browser-view{height:min(420px,52vh);overflow:auto;background:#f4f4f6}
+.al-browser-view video{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.al-browser-view img{display:block;width:100%;height:auto}
+.al-stage{position:relative;height:440px;perspective:1400px;display:grid;place-items:center;overflow:hidden}
+.al-fan{position:absolute;top:50%;left:50%;width:170px;aspect-ratio:9/19.5;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 14px 30px rgba(30,30,70,.25);
+  transform:translate(-50%,-50%) rotateY(0) scale(.8);opacity:0;transition:transform .9s cubic-bezier(.2,1,.3,1),opacity .6s}
+.al-fan img{width:100%;height:100%;object-fit:cover;object-position:top}
+.al-stage.is-in .al-fan{opacity:1}
+.al-stage.is-in .f1{transform:translate(calc(-50% - 330px),-50%) rotateY(38deg) scale(.82)}
+.al-stage.is-in .f2{transform:translate(calc(-50% - 180px),-50%) rotateY(26deg) scale(.9);transition-delay:.06s}
+.al-stage.is-in .f3{transform:translate(calc(-50% + 180px),-50%) rotateY(-26deg) scale(.9);transition-delay:.06s}
+.al-stage.is-in .f4{transform:translate(calc(-50% + 330px),-50%) rotateY(-38deg) scale(.82)}
+.al-iphone{position:relative;z-index:2;width:200px;aspect-ratio:9/19.5;border-radius:38px;padding:9px;background:linear-gradient(145deg,#e9e9ee,#b9bac3 40%,#f4f4f7 60%,#a9aab3);
+  box-shadow:0 30px 60px rgba(30,30,70,.35),inset 0 0 0 1px rgba(255,255,255,.6)}
+.al-iphone-s{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;background:#111}
+.al-iphone-s video{width:100%;height:100%;object-fit:cover;object-position:top}
+.al-iphone-s::before{content:"";position:absolute;z-index:2;top:8px;left:50%;width:62px;height:18px;margin-left:-31px;border-radius:12px;background:#000}
+.al-thumbs{display:flex;gap:10px;overflow-x:auto;padding:12px 2px 4px}
+.al .al-thumbs button{flex:none;border-radius:10px;overflow:hidden;width:150px;aspect-ratio:16/10;background:rgba(255,255,255,.2)}
+.al-thumbs img{width:100%;height:100%;object-fit:cover;object-position:top}
+/* travel album */
+.al-masonry{columns:3 160px;column-gap:10px}
+.al .al-masonry button{display:block;width:100%;margin:0 0 10px;border-radius:10px;overflow:hidden;break-inside:avoid}
+.al-masonry img{width:100%;height:auto}
+.al .al-vtile{position:relative;aspect-ratio:16/10;border-radius:10px;overflow:hidden}
+.al-vtile video{width:100%;height:100%;object-fit:cover}
+/* figma window */
+.al-fig{display:grid;grid-template-columns:200px minmax(0,1fr);margin:0 -22px -22px;height:calc(100% + 22px);background:#2c2c2c;color:#e6e6e6;text-shadow:none}
+.al-fig-l{background:#2c2c2c;border-right:1px solid #3a3a3a;padding:10px 0;overflow:auto;font-size:12px}
+.al-fig-l b{display:block;padding:6px 14px;font-weight:600;color:#fff}
+.al-fig-l span{display:flex;gap:8px;align-items:center;padding:5px 14px;color:#cfcfcf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.al-fig-l span::before{content:"#";color:#8c8c8c}
+.al-fig-l span.is-on{background:#0c8ce9;color:#fff}.al-fig-l span.is-on::before{color:#fff}
+.al-fig-c{position:relative;overflow:hidden;background:#e5e5e5;cursor:grab}
+.al-fig-c:active{cursor:grabbing}
+.al-fig-c img{position:absolute;left:0;top:0;width:1100px;max-width:none;user-select:none;-webkit-user-drag:none}
+.al-fig-z{position:absolute;right:12px;bottom:12px;display:flex;gap:4px}
+.al .al-fig-z button{width:30px;height:30px;border-radius:8px;background:#2c2c2c;color:#fff;font-size:16px}
+
+/* phone */
+.al-phone{display:none}
+.al-status{display:none}
+
+@media (max-width:1180px){
+  .al-folders{grid-template-columns:repeat(2,200px);gap:28px 26px}
+  .al-fold{transform:scale(.87);transform-origin:top left;width:200px;height:206px}
+  .al-widgets{width:290px}
+}
+@media (max-width:980px){ .al-widgets{display:none} .al-folders{left:50%;right:auto;transform:translateX(-50%)} }
+
+@media (max-width:759px){
+  .al-menu,.al-folders,.al-widgets,.al-dock{display:none}
+  .al-wall{object-position:22% 50%}
+  .al-status{display:flex;position:absolute;top:0;left:0;right:0;height:calc(44px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 26px 0;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+  .al-status svg{height:12px;width:auto;fill:currentColor}
+  .al-phone{display:flex;flex-direction:column;position:absolute;inset:calc(48px + env(safe-area-inset-top,0px)) 0 0;padding:6px 20px 0}
+  .al-pw{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .al-pw .al-w{padding:14px 16px;border-radius:22px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between}
+  .al-pw .al-cal-m{font-size:15px;font-weight:600;letter-spacing:0;color:#ff8a80;text-transform:uppercase}
+  .al-pw .al-cal-d{font-size:56px}
+  .al-pw .al-clock-t{font-size:44px}
+  .al-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 10px;margin-top:22px}
+  .al .al-app{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:500;text-align:center;text-shadow:0 1px 4px rgba(40,50,90,.4)}
+  .al-app-ic{width:62px;height:62px;border-radius:15px;overflow:hidden;position:relative}
+  .al-app-ic img{width:100%;height:100%}
+  .al-app-ic.is-pad img{transform:scale(1.2)}
+  .al-app-ic.is-fold{padding:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .al-app-ic.is-fold img{border-radius:4px;object-fit:cover;object-position:top}
+  .al-pdock{margin:auto -6px calc(10px + env(safe-area-inset-bottom,0px));padding:12px 14px;border-radius:32px;display:grid;grid-template-columns:repeat(4,1fr);justify-items:center}
+  .al-pdock .al-app-ic{width:60px;height:60px}
+  .al-win,.al-win.is-max,.al-win.is-sm{left:0;top:0;width:100%;height:100%;max-height:none;border-radius:0;transform:translateY(40px);border:0}
+  .al-win.is-in{transform:none}
+  .al-bar{height:calc(54px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
+  .al .al-tl--y,.al .al-tl--g{display:none}
+  .al .al-tl--r::after{display:none}
+  .al .al-tl--r{width:30px;height:30px;background:rgba(255,255,255,.2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7L7 17'/%3E%3C/svg%3E") center/14px no-repeat;box-shadow:none}
+  .al-body{padding:0 16px calc(24px + env(safe-area-inset-bottom,0px))}
+  .al-case-info{grid-template-columns:1fr}
+  .al-case-acts{justify-content:flex-start}
+  .al-case-info h2{font-size:30px}
+  .al-gal img,.al-gal .is-m img{height:150px}
+  .al-zoom{inset:calc(54px + env(safe-area-inset-top,0px)) 0 0}
+  .al-name{font-size:30px}
+  .al-win.is-split .al-body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  .al-side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid rgba(255,255,255,.22);padding:4px 12px 8px}
+  .al .al-side button{width:auto;white-space:nowrap}
+  .al-side-h{display:none}
+  .al-main{padding:6px 16px 24px}
+  .al-stage{height:360px}
+  .al-iphone{width:160px}
+  .al-fan{width:130px}
+  .al-stage.is-in .f1,.al-stage.is-in .f4{opacity:0}
+  .al-stage.is-in .f2{transform:translate(calc(-50% - 110px),-50%) rotateY(30deg) scale(.82)}
+  .al-stage.is-in .f3{transform:translate(calc(-50% + 110px),-50%) rotateY(-30deg) scale(.82)}
+  .al-fig{grid-template-columns:1fr;margin:0 -16px -24px}
+  .al-fig-l{display:none}
+  .al-canvas{margin:0 -16px -24px}
+}
+@media (prefers-reduced-motion:reduce){
+  .al *{transition-duration:.01s!important;transition-delay:0s!important}
+}
+</style>
+
+<div class="al" id="al" lang="ru">
+  <!-- desktop / phone layer -->
+  <div class="al-desk" aria-hidden="true" id="al-desk">
+    <img class="al-wall" src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop-poster.webp" alt="">
+    <video class="al-wall" id="al-wall" muted loop playsinline preload="metadata" poster="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop-poster.webp" aria-hidden="true">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop.mp4" type="video/mp4">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop.webm" type="video/webm">
+    </video>
+    <div class="al-veil"></div>
+    <div class="al-desk-ui" id="al-ui">
+      <header class="al-menu">
+        <div class="al-menu-l">
+          <img src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/brand/app-icon-256.png" alt="">
+          <b>Айна Линд</b>
+          <button type="button" data-open="photos">Проекты</button>
+          <button type="button" data-open="about">Обо мне</button>
+          <button type="button" data-open="mail">Контакты</button>
+        </div>
+        <div class="al-menu-r"><div class="al-lang"><button type="button" class="al-lang-b" aria-haspopup="true" aria-expanded="false" aria-label="Язык">RU</button><div class="al-lang-m glass" role="menu"><span class="is-on"><i>✓</i>Русский</span><a href="https://lindaina.com/" role="menuitem" hreflang="en"><i></i>English</a></div></div><span id="al-menu-time"></span></div>
+      </header>
+
+      <div class="al-widgets">
+        <section class="al-w glass al-in" style="--d:.55s" aria-label="Календарь">
+          <div class="al-cal-top"><div class="al-cal-m" id="al-cal-m"></div><div class="al-cal-d" id="al-cal-d"></div></div>
+          <div class="al-week" id="al-week"></div>
+        </section>
+        <section class="al-w glass al-in" style="--d:.7s" aria-label="Часы">
+          <div class="al-clock"><div class="al-clock-t" id="al-clock-t"></div><div class="al-clock-s"><b class="al-city"></b><span id="al-clock-z"></span></div></div>
+        </section>
+      </div>
+
+      <div class="al-folders" id="al-folders"></div>
+
+      <nav class="al-dock glass" id="al-dock" aria-label="Док"></nav>
+
+      <!-- phone -->
+      <div class="al-status"><span id="al-st-time"></span><div class="al-st-r"><div class="al-lang"><button type="button" class="al-lang-b" aria-haspopup="true" aria-expanded="false" aria-label="Язык">RU</button><div class="al-lang-m glass" role="menu"><span class="is-on"><i>✓</i>Русский</span><a href="https://lindaina.com/" role="menuitem" hreflang="en"><i></i>English</a></div></div><svg viewBox="0 0 64 12" aria-hidden="true"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="1" width="3" height="11" rx="1"/><rect x="36" y="1" width="24" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="38" y="3" width="17" height="7" rx="1.5"/><rect x="61" y="4.5" width="2" height="4" rx="1"/></svg></div></div>
+      <div class="al-phone">
+        <div class="al-pw">
+          <section class="al-w glass" aria-label="Календарь"><div class="al-cal-m" id="al-pcal-m"></div><div class="al-cal-d" id="al-pcal-d"></div></section>
+          <section class="al-w glass" aria-label="Часы"><div class="al-clock-s" style="text-align:left"><b class="al-city"></b></div><div class="al-clock-t" id="al-pclock"></div></section>
+        </div>
+        <div class="al-apps" id="al-apps"></div>
+        <div class="al-pdock glass" id="al-pdock"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- intro -->
+  <div class="al-intro" id="al-intro" role="button" tabindex="0" aria-label="Потяните за цепочку, чтобы включить свет">
+    <video id="al-vid" muted playsinline preload="auto" poster="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro-dark.webp">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro.mp4" type="video/mp4">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro.webm" type="video/webm">
+    </video>
+    <img id="al-light" src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro-light.webp" alt="">
+  </div>
+
+  <!-- notification -->
+  <div class="al-note glass" id="al-note" role="status" aria-live="polite" inert>
+    <div class="al-note-row">
+      <span class="al-note-ic"><img src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/brand/app-icon-256.png" alt=""></span>
+      <div class="al-note-txt">
+        <div class="al-note-head"><b>Айна</b><span>сейчас</span></div>
+        <div class="al-note-body" id="al-note-body"></div>
+      </div>
+    </div>
+    <div class="al-note-acts">
+      <button class="al-btn al-btn--ghost" id="al-later" type="button">Не сейчас</button>
+      <button class="al-btn al-btn--main" id="al-open" type="button">Открыть</button>
+    </div>
+  </div>
+
+  <!-- contact card -->
+  <section class="al-card glass" id="al-card" aria-label="Контакты" inert>
+    <p class="al-kicker">Веб-дизайнер</p>
+    <h1 class="al-name">Айна Линд</h1>
+    <ul class="al-list">
+      <li><span class="al-k">Почта</span><span class="al-v">ainalind@yandex.com</span><button class="al-copy" type="button" data-copy="ainalind@yandex.com" aria-label="Копировать" title="Копировать"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></li>
+      <li><span class="al-k">Instagram</span><a class="al-v" href="https://www.instagram.com/aina_lind/" target="_blank" rel="noopener">@aina_lind</a><span></span></li>
+    </ul>
+    <button class="al-btn al-btn--main al-wide" id="al-card-open" type="button">Открыть проекты</button>
+  </section>
+
+  <div id="al-wins"></div>
+</div>
+
+<script>
+(function(){
+  var A = 'https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/';
+  var EMAIL = 'ainalind@yandex.com', IG = 'https://www.instagram.com/aina_lind/';
+
+  /* One list: a new project = one more entry here, it becomes a new folder */
+  function seq(prefix, n){ var a = []; for(var i=1;i<=n;i++) a.push(prefix + (i<10?'0':'') + i + '.webp'); return a; }
+  /* media for each case: desktop video or blocks, mobile scroll video and screens */
+  /* media for each case. dir = 'cases-ru' (русские скриншоты) or default 'cases-en'. counts = files in desktop/ and mobile/ */
+  function en(id, nd, nm, deskVideo, dir){
+    var b = (dir||'cases-en')+'/'+id+'/', d = [], m = [];
+    for(var i=1;i<=nd;i++) d.push(b+'desktop/d'+(i<10?'0':'')+i+'.webp');
+    for(var k=1;k<=nm;k++) m.push(b+'mobile/m'+(k<10?'0':'')+k+'.webp');
+    return {desk:d, mob:m, deskVideo: deskVideo ? b+'desktop-scroll.mp4' : '', deskScroll:b+'desktop-scroll.mp4', mobVideo:b+'mobile-scroll.mp4', thumb:d[0]};
+  }
+  var MEDIA = {
+    lind: en('lind', 13, 12, true),
+    kulagina: en('kulagina', 11, 12, true),
+    beauty: en('beauty', 13, 11, true),
+    yurmagrand: en('yurmagrand', 16, 14, true)
+  };
+  var TRAVEL = []; for(var ti=1; ti<=31; ti++) TRAVEL.push('gallery/g' + (ti<10?'0':'') + ti + '.webp');
+  var PROJECTS = [
+    {id:'lind', title:'Lind.', year:'2026', type:'Сайт бренда', sub:'Имиджевый сайт бренда LIND', path:['Сайт','Сторителлинг','Tilda'], url:'https://smetaprofi24.ru', host:'smetaprofi24.ru', page:'/lind',
+     text:'Имиджевый сайт бренда LIND. История разворачивается на скролле: липа, чертёж, дом в немецком стиле и чай в своём доме.',
+     tags:['Tilda','Figma','Сторителлинг']},
+    {id:'kulagina', title:'Кулагина', year:'2026', type:'Портфолио', sub:'Портфолио консультанта в фешн-индустрии', path:['Портфолио','RU / EN','Tilda'], url:'https://kulaginaportfolio.com', host:'kulaginaportfolio.com', page:'/kulagina',
+     text:'Сайт-портфолио консультанта в фешн-индустрии с опытом больше десяти лет. Две языковые версии: русская и английская.',
+     tags:['Tilda','Figma','RU / EN']},
+    {id:'beauty', title:'BEAUTY на МИЛЛИОН', year:'2026', type:'Лендинг', sub:'Лендинг бизнес-практикума', path:['Лендинг','Форма заявки','Tilda'], url:'https://beautynamillion.ru/grant', host:'beautynamillion.ru', page:'/beauty',
+     text:'Лендинг пятидневного практикума для владельцев салонов красоты. Собирает заявки на грант.',
+     tags:['Tilda','Лендинг']},
+    {id:'yurmagrand', title:'Юрмагранд', year:'2026', type:'Сайт клиники', sub:'Сайт стоматологической клиники', path:['Сайт','Figma','Tilda'], url:'https://yurmagrand.ru', host:'yurmagrand.ru', page:'/yurmagrand',
+     text:'Сайт семейной стоматологии: услуги, цены, врачи и онлайн-запись.',
+     tags:['Tilda','Figma','Zero Block']}
+  ];
+  /* Wallet: one card per service. Prices change here */
+  var CARDS = [
+    {name:'Сайт-портфолио', price:'10 000 ₽', line:'Одна страница о вас и ваших работах', img:'pearl'},
+    {name:'Лендинг', price:'15 000 ₽', line:'Одна страница под один продукт или услугу', img:'peach'},
+    {name:'Сайт', price:'25 000 ₽', line:'О компании, услуги, работы, контакты', img:'opal'},
+    {name:'Каталог', price:'35 000 ₽', line:'Каталог товаров с формой заказа', img:'rose'},
+    {name:'Перенос из Figma', price:'10 000 ₽', line:'Ваш готовый макет на Тильде', img:'mint'},
+    {name:'Свой проект', price:'Обсудим', line:'Расскажите о задаче, я её оценю', img:'holo'}
+  ];
+  /* Notes: About me and CV */
+  var ABOUT = {
+    text:['Веб-дизайнер. Делаю сайты на Тильде с нуля: идея, дизайн в Figma, сборка, настройка и SEO.',
+          'До дизайна много лет работала в банках и e-commerce, поэтому думаю не только о картинке, но и о цифрах и целях бизнеса.',
+          'Работаю удалённо, из любой точки мира.',
+          'В свободное время: творчество, рисую.'],
+    can:['Сайты на Тильде','Сайты-портфолио и лендинги','Многостраничные сайты и каталоги','Веб-дизайн в Figma','Перенос макета из Figma на Тильду','SEO и продвижение в Яндексе','Автоматизация: Google Apps Script, n8n','Парсинг данных на Python','Бизнес-планы и финмодели'],
+    exp:['Веб-дизайнер на фрилансе','Банки и e-commerce, до 2025'],
+    edu:['Банковское дело, 2015–2018'],
+    tools:['Figma','Tilda','Google Apps Script','n8n','Python']
+  };
+
+  /* dock: tools | apps | contacts | trash. sq = full-bleed square icon that needs the rounded mask */
+  var APPS = [
+    {id:'figma', label:'Figma', icon:'icons/figma.png', sq:true},
+    {sep:true},
+    {id:'about', label:'Контакты', icon:'icons/contacts.png', sq:true},
+    {id:'notes', label:'Заметки', icon:'icons/notes.png', sq:true},
+    {id:'photos', label:'Фото', icon:'icons/photos.png'},
+    {id:'wallet', label:'Wallet', icon:'icons/wallet-mac.png'},
+    {id:'calendar', label:'Календарь', icon:'icons/calendar.png', sq:true},
+    {sep:true},
+    {id:'instagram', label:'Instagram', icon:'icons/instagram.png', href:IG},
+    {id:'mail', label:'Почта', icon:'icons/mail.png', sq:true},
+    {id:'behance', label:'Behance', icon:'icons/behance.png', sq:true, href:'https://www.behance.net/9d02e1d0'},
+    {sep:true, id:'sep-last'},
+    {id:'old', label:'старые дизайны', icon:'icons/trash.png'}
+  ];
+  function appById(id){ return APPS.filter(function(x){ return x.id===id; })[0]; }
+
+  var al = document.getElementById('al'), $ = function(id){ return document.getElementById(id); };
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var n = PROJECTS.length;
+  function plural(k, a, b, c){ var m10 = k%10, m100 = k%100; return (m10===1 && m100!==11) ? a : (m10>=2 && m10<=4 && (m100<12 || m100>14)) ? b : c; }
+  function cap(t){ return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; }
+  $('al-note-body').textContent = n + ' ' + plural(n, 'новый проект ждёт', 'новых проекта ждут', 'новых проектов ждут');
+
+  /* ---------- sound ---------- */
+  var AC = null;
+  function audio(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
+  function click(){
+    var ac = audio(); if(!ac) return; var t = ac.currentTime;
+    [[0,3200,.8],[.11,2100,.5]].forEach(function(c){
+      var len = Math.floor(ac.sampleRate*.03), b = ac.createBuffer(1,len,ac.sampleRate), d = b.getChannelData(0);
+      for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);
+      var s=ac.createBufferSource(); s.buffer=b; var f=ac.createBiquadFilter(); f.type='bandpass'; f.frequency.value=c[1]; f.Q.value=1.4;
+      var g=ac.createGain(); g.gain.value=c[2]; s.connect(f); f.connect(g); g.connect(ac.destination); s.start(t+c[0]);
+    });
+  }
+  function chime(){
+    var ac = audio(); if(!ac) return; var t = ac.currentTime;
+    [[1046.5,0],[1568,.1]].forEach(function(nf){
+      var o=ac.createOscillator(), g=ac.createGain(); o.type='sine'; o.frequency.value=nf[0];
+      g.gain.setValueAtTime(.0001,t+nf[1]); g.gain.exponentialRampToValueAtTime(.06,t+nf[1]+.015); g.gain.exponentialRampToValueAtTime(.0001,t+nf[1]+.6);
+      o.connect(g); g.connect(ac.destination); o.start(t+nf[1]); o.stop(t+nf[1]+.65);
+    });
+  }
+
+  /* ---------- intro ---------- */
+  var intro = $('al-intro'), vid = $('al-vid'), light = $('al-light'), note = $('al-note'), card = $('al-card');
+  var started = false, noted = false, LIGHT_AT = 4.6;
+  function showNote(on){ note.classList.toggle('is-in', on); note.inert = !on; if(on && !noted){ noted = true; chime(); } }
+  function showCard(on){ card.classList.toggle('is-in', on); card.inert = !on; }
+  function lightOn(){ light.style.opacity = 1; intro.classList.add('is-done'); }
+  function start(){
+    if(started) return; started = true; audio(); click();
+    intro.classList.add('is-play');
+    if(reduce){ lightOn(); setTimeout(function(){ showNote(true); }, 300); return; }
+    var p = vid.play(); if(p && p.catch) p.catch(function(){ lightOn(); setTimeout(function(){ showNote(true); }, 600); });
+  }
+  vid.addEventListener('timeupdate', function(){ if(vid.currentTime >= LIGHT_AT && !noted) setTimeout(function(){ showNote(true); }, 300); });
+  vid.addEventListener('ended', lightOn);
+  vid.addEventListener('error', function(){ if(started) lightOn(); });
+  intro.addEventListener('click', start);
+  intro.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); start(); } });
+
+  $('al-later').addEventListener('click', function(){ showNote(false); setTimeout(function(){ showCard(true); }, 380); });
+  $('al-open').addEventListener('click', function(){ showNote(false); setTimeout(openDesk, 250); });
+  $('al-card-open').addEventListener('click', function(){ showCard(false); setTimeout(openDesk, 250); });
+  /* living wallpaper: seamless silk loop */
+  var Wall = { start:function(){ if(reduce) return; var v = $('al-wall'); try{ var q = v.play(); if(q && q.catch) q.catch(function(){}); }catch(e){} } };
+  function openDesk(){ Wall.start(); al.classList.add('is-desk'); $('al-desk').removeAttribute('aria-hidden'); intro.setAttribute('aria-hidden','true'); intro.tabIndex = -1; try{ vid.pause(); }catch(e){} }
+
+  /* ---------- clock & calendar ---------- */
+  /* visitor's own time zone */
+  var TZ = ''; try{ TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; }catch(e){}
+  var CITY = TZ ? TZ.split('/').pop().replace(/_/g,' ') : '';
+  var CITY_RU = {'Moscow':'Москва','Kaliningrad':'Калининград','Samara':'Самара','Yekaterinburg':'Екатеринбург','Omsk':'Омск','Novosibirsk':'Новосибирск','Krasnoyarsk':'Красноярск','Irkutsk':'Иркутск','Yakutsk':'Якутск','Vladivostok':'Владивосток','Magadan':'Магадан','Kamchatka':'Камчатка','Volgograd':'Волгоград','Saratov':'Саратов','Ulyanovsk':'Ульяновск','Astrakhan':'Астрахань','Kirov':'Киров','Barnaul':'Барнаул','Tomsk':'Томск','Novokuznetsk':'Новокузнецк','Chita':'Чита','Simferopol':'Симферополь','Minsk':'Минск','Kiev':'Киев','Kyiv':'Киев','Almaty':'Алматы','Tashkent':'Ташкент','Tbilisi':'Тбилиси','Yerevan':'Ереван','Baku':'Баку','Bishkek':'Бишкек','Istanbul':'Стамбул','Dubai':'Дубай','Bangkok':'Бангкок','Makassar':'Бали','Amsterdam':'Амстердам','Berlin':'Берлин','Paris':'Париж','London':'Лондон','Rome':'Рим','Madrid':'Мадрид','Lisbon':'Лиссабон','Belgrade':'Белград','Riga':'Рига','Tallinn':'Таллин','Vilnius':'Вильнюс','Warsaw':'Варшава','Prague':'Прага','Vienna':'Вена','Helsinki':'Хельсинки','New York':'Нью-Йорк','Los Angeles':'Лос-Анджелес'};
+  if(CITY_RU[CITY]) CITY = CITY_RU[CITY];
+  document.querySelectorAll('.al-city').forEach(function(el){ el.textContent = CITY || 'Местное время'; });
+  function fmt(o){ try{ return new Intl.DateTimeFormat('ru-RU', o).format(new Date()); }catch(e){ return ''; } }
+  function utc(){ var m = -new Date().getTimezoneOffset(), s = m >= 0 ? '+' : '−', a = Math.abs(m); return 'UTC' + s + Math.floor(a/60) + (a%60 ? ':' + String(a%60).padStart(2,'0') : ''); }
+  var lastDay = new Date().getDate();
+  function tick(){
+    var hm = fmt({hour:'2-digit',minute:'2-digit'});
+    $('al-clock-t').textContent = hm; $('al-pclock').textContent = hm; $('al-st-time').textContent = hm;
+    $('al-menu-time').textContent = cap(fmt({weekday:'short',day:'numeric',month:'short'})) + '  ' + hm;
+    $('al-clock-z').textContent = utc();
+    if(new Date().getDate() !== lastDay){ lastDay = new Date().getDate(); cal(); }
+  }
+  function cal(){
+    var now = new Date(), d = now.getDate(), wd = (now.getDay()+6)%7;
+    var month = cap(fmt({month:'long'}) || now.toLocaleString('ru',{month:'long'}));
+    $('al-cal-m').textContent = month; $('al-cal-d').textContent = d;
+    $('al-pcal-m').textContent = cap(fmt({weekday:'long'})); $('al-pcal-d').textContent = d;
+    var names = ['П','В','С','Ч','П','С','В'], h = '';
+    names.forEach(function(x){ h += '<span>'+x+'</span>'; });
+    for(var i=0;i<7;i++){ var dt = new Date(now); dt.setDate(d - wd + i); h += '<b class="'+(i===wd?'is-today':'')+'">'+dt.getDate()+'</b>'; }
+    $('al-week').innerHTML = h;
+  }
+  cal(); tick(); setInterval(tick, 10000);
+
+  /* ---------- folders ---------- */
+  var EDGE = 'M0 20 Q0 0 20 0 L92 0 Q104 0 110 10 L118 24 Q124 34 136 34 L210 34 Q230 34 230 54 L230 102 Q230 122 210 122 L20 122 Q0 122 0 102 Z';
+  var fw = $('al-folders');
+  PROJECTS.forEach(function(p, i){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'al-fold al-in'; b.style.setProperty('--d', (.6 + i*.09)+'s');
+    b.setAttribute('aria-label', 'Открыть ' + p.title);
+    b.innerHTML =
+      '<span class="al-fold-back"></span>' +
+      '<img class="al-fold-p p1" src="'+A+MEDIA[p.id].desk[1]+'" alt="" loading="lazy">' +
+      '<img class="al-fold-p p3" src="'+A+MEDIA[p.id].mob[0]+'" alt="" loading="lazy">' +
+      '<img class="al-fold-p p2" src="'+A+MEDIA[p.id].thumb+'" alt="" loading="lazy">' +
+      '<span class="al-fold-front"></span>' +
+      '<svg class="al-fold-edge" viewBox="0 0 230 122" aria-hidden="true"><path d="'+EDGE+'"/></svg>' +
+      '<span class="al-fold-lab"><span><span class="al-fold-t"></span><span class="al-fold-y"></span></span>' +
+      '<span class="al-fold-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span>' +
+      '<span class="al-fold-cap"></span>';
+    b.querySelector('.al-fold-t').textContent = p.title;
+    b.querySelector('.al-fold-y').textContent = p.type + ' · ' + p.year;
+    b.querySelector('.al-fold-cap').textContent = p.id + '.case';
+    b.addEventListener('click', function(e){
+      fw.querySelectorAll('.al-fold').forEach(function(f){ f.classList.toggle('is-sel', f === b); });
+      if(e.detail >= 2 || matchMedia('(hover: none)').matches) openCase(p);
+    });
+    b.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); openCase(p); } });
+    fw.appendChild(b);
+  });
+
+  /* ---------- dock ---------- */
+  var dock = $('al-dock');
+  APPS.forEach(function(a){
+    if(a.sep){ var s = document.createElement('span'); s.className='al-dock-sep'; if(a.id) s.id = 'al-'+a.id; dock.appendChild(s); return; }
+    var el = document.createElement(a.href ? 'a' : 'button');
+    if(a.href){ el.href = a.href; el.target = '_blank'; el.rel = 'noopener'; } else el.type = 'button';
+    el.className = 'al-dk' + (a.sq ? ' is-sq' : ''); el.dataset.label = a.label; el.dataset.app = a.id; el.setAttribute('aria-label', a.label);
+    el.innerHTML = '<img src="'+A+a.icon+'" alt=""><span class="al-dk-dot"></span>';
+    if(!a.href) el.addEventListener('click', function(){ openApp(a.id); });
+    dock.appendChild(el);
+  });
+  /* magnification */
+  var BASE = 54, MAX = 84;
+  dock.addEventListener('mousemove', function(e){
+    if(reduce) return;
+    dock.querySelectorAll('.al-dk').forEach(function(d){ var r = d.getBoundingClientRect(), c = r.left + r.width/2, dist = Math.abs(e.clientX - c);
+      var s = Math.max(0, 1 - dist/150); var sz = BASE + (MAX-BASE)*s*s; d.style.width = d.style.height = sz + 'px'; });
+  });
+  dock.addEventListener('mouseleave', function(){ dock.querySelectorAll('.al-dk').forEach(function(d){ d.style.width = d.style.height = ''; }); });
+
+  /* ---------- phone home ---------- */
+  var apps = $('al-apps');
+  PROJECTS.forEach(function(p){
+    var b = document.createElement('button'); b.type='button'; b.className='al-app';
+    var mm = MEDIA[p.id];
+    b.innerHTML = '<span class="al-app-ic glass is-fold"><img src="'+A+mm.desk[0]+'" alt=""><img src="'+A+mm.mob[0]+'" alt=""><img src="'+A+mm.desk[1]+'" alt=""><img src="'+A+mm.mob[1]+'" alt=""></span><span></span>';
+    b.lastChild.textContent = p.title; b.addEventListener('click', function(){ openCase(p); }); apps.appendChild(b);
+  });
+  ['about','calendar','figma','behance','instagram','old'].forEach(function(id){
+    var a = appById(id); if(!a) return;
+    var el = document.createElement(a.href?'a':'button'); if(a.href){ el.href=a.href; el.target='_blank'; el.rel='noopener'; } else el.type='button';
+    el.className='al-app'; el.innerHTML='<span class="al-app-ic'+(a.sq?'':' is-pad')+'"><img src="'+A+a.icon+'" alt=""></span><span></span>';
+    el.lastChild.textContent = a.label; if(!a.href) el.addEventListener('click', function(){ openApp(id); }); apps.appendChild(el);
+  });
+  [['mail','icons/mail.png',1],['notes','icons/notes.png',1],['wallet','icons/wallet-mac.png',0],['photos','icons/photos.png',0]].forEach(function(x){
+    var el = document.createElement('button'); el.type='button';
+    el.className='al-app'; el.setAttribute('aria-label', ({mail:'Почта',notes:'Заметки',wallet:'Wallet',photos:'Фото'})[x[0]]);
+    el.innerHTML='<span class="al-app-ic'+(x[2]?'':' is-pad')+'"><img src="'+A+x[1]+'" alt=""></span>';
+    el.addEventListener('click', function(){ openApp(x[0]); });
+    $('al-pdock').appendChild(el);
+  });
+
+  /* ---------- windows ---------- */
+  var wins = $('al-wins'), z = 10;
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function win(key, title, html, o){
+    o = o || {};
+    var ex = wins.querySelector('[data-key="'+key+'"]');
+    if(ex){ if(ex._restore) ex._restore(); ex.style.zIndex = ++z; return ex; }
+    var w = document.createElement('section'); w.className = 'al-win' + (o.small ? ' is-sm' : '') + (o.split ? ' is-split' : ''); w.dataset.key = key; w.style.zIndex = ++z;
+    w.setAttribute('role','dialog'); w.setAttribute('aria-label', title);
+    w.innerHTML = '<div class="al-bar"><button class="al-tl al-tl--r" aria-label="Закрыть"></button><button class="al-tl al-tl--y" aria-label="Свернуть"></button><button class="al-tl al-tl--g" aria-label="Развернуть"></button><span class="al-bar-t">'+esc(title)+'</span></div><div class="al-body">'+html+'</div><div class="al-zoom"><img alt=""></div>';
+    wins.appendChild(w);
+    requestAnimationFrame(function(){ w.classList.add('is-in'); });
+    var mini = null;
+    var close = function(){ if(mini){ mini.remove(); mini = null; } w.classList.remove('is-in'); setDot(key,false); setTimeout(function(){ w.remove(); }, 300); };
+    var pin = function(){ var r = w.getBoundingClientRect(), ar = al.getBoundingClientRect(); w.style.transition = 'none'; w.style.transform = 'none'; w.style.left = (r.left-ar.left)+'px'; w.style.top = (r.top-ar.top)+'px'; w.style.transformOrigin = '0 0'; return r; };
+    var minimize = function(){
+      if(matchMedia('(max-width:759px)').matches || mini) return close();
+      var r = pin();
+      mini = document.createElement('button'); mini.type = 'button'; mini.className = 'al-dk is-mini'; mini.dataset.label = title; mini.setAttribute('aria-label', 'Restore ' + title);
+      mini.innerHTML = '<img src="'+(o.thumb || A+'brand/app-icon-256.png')+'" alt="">';
+      dock.insertBefore(mini, $('al-sep-last'));
+      var t = mini.getBoundingClientRect();
+      var to = 'translate('+(t.left-r.left)+'px,'+(t.top-r.top)+'px) scale('+(t.width/r.width)+','+(t.height/r.height)+')';
+      var an = w.animate ? w.animate([{transform:'none',opacity:1},{transform:to,opacity:.15}],{duration:reduce?1:420,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'}) : null;
+      var hide = function(){ w.style.visibility = 'hidden'; };
+      if(an) an.onfinish = hide; else hide();
+      w._anim = an; w._to = to;
+      mini.addEventListener('click', w._restore);
+    };
+    w._restore = function(){
+      if(!mini) return;
+      mini.remove(); mini = null; w.style.visibility = ''; w.style.zIndex = ++z;
+      if(w._anim){ w._anim.cancel(); if(w.animate) w.animate([{transform:w._to,opacity:.15},{transform:'none',opacity:1}],{duration:reduce?1:420,easing:'cubic-bezier(.2,1,.3,1)'}); }
+    };
+    w.querySelector('.al-tl--r').addEventListener('click', close);
+    w.querySelector('.al-tl--y').addEventListener('click', minimize);
+    w.querySelector('.al-tl--g').addEventListener('click', function(){ w.classList.toggle('is-max'); });
+    w.addEventListener('mousedown', function(){ w.style.zIndex = ++z; });
+    var zoom = w.querySelector('.al-zoom');
+    zoom.addEventListener('click', function(){ zoom.classList.remove('is-in'); });
+    w.addEventListener('click', function(e){
+      var zb = e.target.closest('[data-zoom]'); if(zb){ zoom.querySelector('img').src = zb.dataset.zoom; zoom.classList.add('is-in'); return; }
+      var cb = e.target.closest('[data-case]'); if(cb){ openCase(PROJECTS.filter(function(p){ return p.id===cb.dataset.case; })[0]); }
+    });
+    w.querySelectorAll('[data-copy]').forEach(bindCopy);
+    drag(w); setDot(key,true);
+    if(o.init) o.init(w);
+    return w;
+  }
+  function setDot(key, on){ var d = dock.querySelector('[data-app="'+key+'"]'); if(d) d.classList.toggle('is-open', on); }
+  function drag(w){
+    var bar = w.querySelector('.al-bar'), sx, sy, ox, oy, on = false;
+    bar.addEventListener('pointerdown', function(e){
+      if(e.target.closest('button') || matchMedia('(max-width:759px)').matches) return;
+      on = true; bar.setPointerCapture(e.pointerId); var r = w.getBoundingClientRect(), ar = al.getBoundingClientRect();
+      w.style.transition = 'none'; w.style.transform = 'none'; w.style.left = (r.left-ar.left)+'px'; w.style.top = (r.top-ar.top)+'px';
+      sx = e.clientX; sy = e.clientY; ox = r.left-ar.left; oy = r.top-ar.top;
+    });
+    bar.addEventListener('pointermove', function(e){ if(!on) return; w.style.left = (ox + e.clientX - sx)+'px'; w.style.top = Math.max(30, oy + e.clientY - sy)+'px'; });
+    bar.addEventListener('pointerup', function(){ on = false; });
+  }
+  function bindCopy(b){
+    b.addEventListener('click', function(){
+      var t = b.dataset.copy, ok = function(){ if(!b._ic) b._ic = b.innerHTML; b.innerHTML = '✓'; setTimeout(function(){ b.innerHTML = b._ic; }, 1500); };
+      try{ navigator.clipboard.writeText(t).then(ok, function(){}); }catch(e){}
+    });
+  }
+  document.querySelectorAll('.al-card [data-copy]').forEach(bindCopy);
+
+  function mobScreens(p){ return MEDIA[p.id].mob; }
+  function deskPane(p){
+    var m = MEDIA[p.id], inner;
+    if(m.deskVideo) inner = '<video src="'+A+m.deskVideo+'" poster="'+A+m.deskVideo.replace('.mp4','.webp')+'" muted loop playsinline autoplay preload="metadata"></video>';
+    else inner = m.desk.map(function(s){ return '<img src="'+A+s+'" alt="" loading="lazy">'; }).join('');
+    var th = m.deskVideo ? '<div class="al-thumbs">'+m.desk.map(function(s){ return '<button type="button" data-zoom="'+A+s+'"><img src="'+A+s+'" alt="" loading="lazy"></button>'; }).join('')+'</div>' : '';
+    return '<div class="al-browser"><div class="al-browser-bar"><i></i><i></i><i></i><span>'+esc(p.host)+'</span></div><div class="al-browser-view">'+inner+'</div></div>'+th;
+  }
+  function mobPane(p){
+    var m = MEDIA[p.id], sc = mobScreens(p), f = [sc[1],sc[2],sc[3],sc[4]];
+    return '<div class="al-stage">' + f.map(function(s,i){ return '<button type="button" class="al-fan f'+(i+1)+'" data-zoom="'+A+s+'"><img src="'+A+s+'" alt="" loading="lazy"></button>'; }).join('') +
+      '<div class="al-iphone"><div class="al-iphone-s"><video src="'+A+m.mobVideo+'" poster="'+A+m.mobVideo.replace('.mp4','.webp')+'" muted loop playsinline preload="metadata"></video></div></div></div>';
+  }
+  function playIn(root){ root.querySelectorAll('video').forEach(function(v){ if(reduce) return; try{ var q = v.play(); if(q && q.catch) q.catch(function(){}); }catch(e){} }); }
+  function tabs(w){
+    w.querySelectorAll('.al-seg2').forEach(function(seg){
+      seg.addEventListener('click', function(e){
+        var b = e.target.closest('button'); if(!b) return;
+        seg.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b ? 'true' : 'false'); });
+        w.querySelectorAll('[data-set]').forEach(function(g){
+          var on = g.dataset.set === b.dataset.show; g.hidden = !on;
+          var st = g.querySelector('.al-stage');
+          if(on){ playIn(g); if(st){ st.classList.remove('is-in'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ st.classList.add('is-in'); }); }); } }
+          else g.querySelectorAll('video').forEach(function(v){ v.pause(); });
+        });
+      });
+    });
+    w.querySelectorAll('[data-set]:not([hidden])').forEach(playIn);
+  }
+  function openCase(p){
+    var path = p.path.map(esc).join(' <i>›</i> '), m = MEDIA[p.id];
+    win('case-'+p.id, 'Информация: ' + p.title,
+      '<div class="al-info-h"><img src="'+A+m.thumb+'" alt=""><div><b>'+esc(p.title)+'</b><span>'+esc(p.sub)+'</span></div></div>' +
+      '<p class="al-info-t">'+esc(p.text)+'</p>' +
+      '<div class="al-det"><b>Детали:</b> Тип: '+path+' <i>·</i> '+p.year+'</div>' +
+      '<div class="al-prev-h"><span>Превью:</span><span class="al-seg2"><button type="button" data-show="d" aria-pressed="true">Десктоп</button><button type="button" data-show="m" aria-pressed="false">Мобильная</button></span></div>' +
+      '<div data-set="d">'+deskPane(p)+'</div><div data-set="m" hidden>'+mobPane(p)+'</div>' +
+      '<div class="al-acts-row"><a class="al-btn al-btn--main" href="'+p.url+'" target="_blank" rel="noopener">Открыть сайт ↗</a></div>',
+      {thumb: A+m.thumb, init: tabs});
+  }
+  function chk(list, soft){ return '<ul class="al-chk">'+list.map(function(x){ return '<li'+(soft?' class="is-soft"':'')+'>'+x+'</li>'; }).join('')+'</ul>'; }
+  function sideNav(w){
+    var side = w.querySelector('.al-side'), main = w.querySelector('.al-main');
+    side.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-tab]'); if(!b) return;
+      side.querySelectorAll('button').forEach(function(x){ x.classList.toggle('is-on', x===b); });
+      main.innerHTML = w._pane(b.dataset.tab); main.scrollTop = 0;
+      main.querySelectorAll('[data-copy]').forEach(bindCopy);
+    });
+  }
+  function notesPane(tab){
+    if(tab==='cv') return '<h3>Опыт</h3>'+chk(ABOUT.exp.map(esc))+
+      '<h3>Проекты</h3>'+chk(PROJECTS.map(function(p){ return '<button type="button" data-case="'+p.id+'">'+esc(p.title)+'</button> <span style="opacity:.7">'+esc(p.type)+'</span>'; }))+
+      '<h3>Инструменты</h3>'+chk(ABOUT.tools.map(esc))+'<h3>Образование</h3>'+chk(ABOUT.edu.map(esc));
+    return ABOUT.text.map(function(t){ return '<p>'+esc(t)+'</p>'; }).join('')+'<h3>Что я умею</h3>'+chk(ABOUT.can.map(esc));
+  }
+  function photosPane(tab){
+    if(tab==='travel') return '<h3>Путешествия</h3><div class="al-masonry">'+TRAVEL.map(function(s){ return '<button type="button" data-zoom="'+A+s+'"><img src="'+A+s+'" alt="" loading="lazy"></button>'; }).join('')+'</div>';
+    var p = PROJECTS.filter(function(x){ return x.id===tab; })[0], m = MEDIA[p.id];
+    var fold = function(kind, name, imgs, n){ return '<button type="button" class="al-pfold" data-folder="'+kind+'">'+imgs.slice(0,3).map(function(s){ return '<img src="'+A+s+'" alt="">'; }).join('')+'<b>'+name+'</b><span>'+n+'</span></button>'; };
+    var dn = m.desk.length + 1;
+    return '<h3>'+esc(p.title)+'</h3><div class="al-pfolds" data-p="'+p.id+'">'+fold('d','Десктоп',m.desk,dn+' '+plural(dn,'файл','файла','файлов'))+fold('m','Мобильная',mobScreens(p),(m.mob.length+1)+' '+plural(m.mob.length+1,'файл','файла','файлов'))+'</div>';
+  }
+  function folderView(p, kind){
+    var m = MEDIA[p.id], h = '';
+    if(kind==='m'){
+      h = '<div class="al-grid is-m"><div class="al-vtile" style="aspect-ratio:9/19"><video src="'+A+m.mobVideo+'" poster="'+A+m.mobVideo.replace('.mp4','.webp')+'" muted loop playsinline autoplay></video></div>' +
+        mobScreens(p).map(function(s){ return '<button type="button" data-zoom="'+A+s+'"><img src="'+A+s+'" alt="" loading="lazy"></button>'; }).join('') + '</div>';
+    } else {
+      h = '<div class="al-grid">' + '<div class="al-vtile"><video src="'+A+m.deskScroll+'" poster="'+A+m.deskScroll.replace('.mp4','.webp')+'" muted loop playsinline autoplay></video></div>' +
+        m.desk.map(function(s){ return '<button type="button" data-zoom="'+A+s+'"><img src="'+A+s+'" alt="" loading="lazy"></button>'; }).join('') + '</div>';
+    }
+    return '<button type="button" class="al-back" data-tabback="'+p.id+'">‹ '+esc(p.title)+'</button><h3>'+(kind==='m'?'Мобильная':'Десктоп')+'</h3>' + h;
+  }
+  function openApp(id){
+    if(id==='about') return win('about','Контакты',
+      '<div class="al-txt"><p class="al-kicker">Веб-дизайнер</p><h2>Айна Линд</h2>' +
+      '<ul class="al-list"><li><span class="al-k">Почта</span><span class="al-v">'+EMAIL+'</span><button class="al-copy" type="button" data-copy="'+EMAIL+'" aria-label="Копировать" title="Копировать"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></li>' +
+      '<li><span class="al-k">Instagram</span><a class="al-v" href="'+IG+'" target="_blank" rel="noopener">@aina_lind</a><span></span></li>' +
+      '<li><span class="al-k">Behance</span><a class="al-v" href="https://www.behance.net/9d02e1d0" target="_blank" rel="noopener">behance.net</a><span></span></li></ul></div>', {small:true, thumb:A+'icons/contacts.png'});
+    if(id==='mail') return win('mail','Почта',
+      '<div class="al-txt"><h2>Напишите мне</h2><p>Расскажите о проекте, и я пришлю оценку.</p>' +
+      '<ul class="al-list"><li><span class="al-k">Кому</span><span class="al-v">'+EMAIL+'</span><button class="al-copy" type="button" data-copy="'+EMAIL+'" aria-label="Копировать" title="Копировать"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></li></ul>' +
+      '<a class="al-btn al-btn--main al-wide" style="display:inline-flex;align-items:center;justify-content:center" href="mailto:'+EMAIL+'">Новое письмо</a></div>', {small:true, thumb:A+'icons/mail.png'});
+    if(id==='notes') return win('notes','Информация: Айна Линд',
+      '<nav class="al-side"><button type="button" data-tab="about" class="is-on">Обо мне <i>'+ABOUT.can.length+'</i></button><button type="button" data-tab="cv">Резюме <i>'+(ABOUT.exp.length+PROJECTS.length+ABOUT.tools.length+ABOUT.edu.length)+'</i></button></nav><div class="al-main">'+notesPane('about')+'</div>',
+      {split:true, thumb:A+'icons/notes.png', init:function(w){ w._pane = notesPane; sideNav(w); }});
+    if(id==='photos'){
+      var nav = '<div class="al-side-h">Альбомы</div><button type="button" data-tab="travel" class="is-on">Путешествия <i>'+TRAVEL.length+'</i></button><div class="al-side-h">Проекты</div>' + PROJECTS.map(function(p){ var m = MEDIA[p.id]; return '<button type="button" data-tab="'+p.id+'">'+esc(p.title)+' <i>'+(m.desk.length+m.mob.length+2)+'</i></button>'; }).join('');
+      return win('photos','Галерея', '<nav class="al-side">'+nav+'</nav><div class="al-main">'+photosPane('travel')+'</div>',
+        {split:true, thumb:A+'icons/photos.png', init:function(w){
+          w._pane = photosPane; sideNav(w);
+          w.querySelector('.al-main').addEventListener('click', function(e){
+            var f = e.target.closest('[data-folder]'); if(f){ var pid = f.parentNode.dataset.p, p = PROJECTS.filter(function(x){ return x.id===pid; })[0];
+              this.innerHTML = folderView(p, f.dataset.folder); return; }
+            var bk = e.target.closest('[data-tabback]'); if(bk){ this.innerHTML = photosPane(bk.dataset.tabback); }
+          });
+        }});
+    }
+    if(id==='wallet'){
+      var cards = CARDS.map(function(c, i){
+        return '<button type="button" class="al-wc'+(i===0?' is-open':'')+'"><img class="bg" src="'+A+'cards/'+c.img+'.webp" alt=""><span class="al-wc-in">' +
+          '<span class="al-wc-top"><b>'+esc(c.name)+'</b><img src="'+A+'brand/app-icon-256.png" alt=""></span>' +
+          '<span class="al-wc-price">'+esc(c.price)+'</span><span class="al-wc-meta"><span>'+esc(c.line)+'</span></span></span></button>'; }).join('');
+      return win('wallet','Wallet','<div class="al-wallet">'+cards+'</div>', {small:true, thumb:A+'icons/wallet-mac.png', init:function(w){
+        w.querySelector('.al-wallet').addEventListener('click', function(e){ var c = e.target.closest('.al-wc'); if(!c) return;
+          this.querySelectorAll('.al-wc').forEach(function(x){ x.classList.toggle('is-open', x===c); }); });
+      }});
+    }
+    if(id==='calendar'){ var now = new Date(), y = now.getFullYear(), m = now.getMonth(), first = (new Date(y,m,1).getDay()+6)%7, days = new Date(y,m+1,0).getDate();
+      var c = ['П','В','С','Ч','П','С','В'].map(function(x){ return '<span>'+x+'</span>'; }).join(''); for(var i=0;i<first;i++) c += '<b></b>';
+      for(var d=1; d<=days; d++) c += '<b class="'+(d===now.getDate()?'is-today':'')+'">'+d+'</b>';
+      return win('calendar','Календарь','<div class="al-txt"><h2>'+cap(fmt({month:'long'}))+' '+y+'</h2><div class="al-mcal">'+c+'</div></div>', {small:true, thumb:A+'icons/calendar.png'}); }
+    if(id==='figma'){
+      var layers = ['RU · Первый экран 1200 · v3','Юрмагранд · Главная · 1440','Юрмагранд · Главная · 390','Первый экран 1200 · v3','Услуги 1200 · с фото','Почему мы 1200','Акции 1200','Цены 1200','До и после 1200','Врачи 1200','Наши принципы 1200 · v3','Как мы лечим 1200 · v2','О клинике 1200','Отзывы 1200','Запись и контакты 1200','Подвал 1200','Компоненты'];
+      return win('figma','Юрмагранд · Сайт · v3 · Figma',
+        '<div class="al-fig"><div class="al-fig-l"><b>Страницы</b><span class="is-on" style="background:#3a3a3a">Макет v3</span><b>Слои</b>'+layers.map(function(l,i){ return '<span'+(i===0?' class="is-on"':'')+'>'+esc(l)+'</span>'; }).join('')+'</div>' +
+        '<div class="al-fig-c"><img src="'+A+'figma/yurmagrand-canvas.webp" alt="Макет Юрмагранд в Figma" draggable="false"><div class="al-fig-z"><button type="button" data-z="-">−</button><button type="button" data-z="+">+</button></div></div></div>',
+        {thumb:A+'icons/figma.png', init:function(w){
+          var c = w.querySelector('.al-fig-c'), img = c.querySelector('img'), x = -60, y = -40, sc = 1, sx, sy, ox, oy, on = false;
+          var put = function(){ img.style.transform = 'translate('+x+'px,'+y+'px) scale('+sc+')'; img.style.transformOrigin = '0 0'; };
+          put();
+          c.addEventListener('pointerdown', function(e){ if(e.target.closest('button')) return; on = true; c.setPointerCapture(e.pointerId); sx = e.clientX; sy = e.clientY; ox = x; oy = y; });
+          c.addEventListener('pointermove', function(e){ if(!on) return; x = ox + e.clientX - sx; y = oy + e.clientY - sy; put(); });
+          c.addEventListener('pointerup', function(){ on = false; });
+          c.addEventListener('wheel', function(e){ e.preventDefault(); if(e.ctrlKey || e.metaKey){ sc = Math.min(3, Math.max(.4, sc * (e.deltaY < 0 ? 1.1 : .9))); } else { x -= e.deltaX; y -= e.deltaY; } put(); }, {passive:false});
+          w.querySelectorAll('[data-z]').forEach(function(b){ b.addEventListener('click', function(){ sc = Math.min(3, Math.max(.4, sc * (b.dataset.z==='+' ? 1.25 : .8))); put(); }); });
+        }});
+    }
+    if(id==='old') return win('old','Информация: старые дизайны','<div class="al-info-h"><img src="'+A+'icons/trash.png" alt="" style="box-shadow:none;object-fit:contain"><div><b>старые дизайны</b><span>Первые сайты. Храню для истории.</span></div></div>', {small:true, thumb:A+'icons/trash.png'});
+  }
+
+  document.querySelectorAll('[data-open]').forEach(function(b){ b.addEventListener('click', function(){ openApp(b.dataset.open); }); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ var all = wins.querySelectorAll('.al-win'); if(all.length) all[all.length-1].querySelector('.al-tl--r').click(); } });
+
+
+  /* language switcher: RU here, English goes to lindaina.com */
+  Array.prototype.forEach.call(document.querySelectorAll('.al-lang'), function(l){
+    var b = l.querySelector('.al-lang-b');
+    b.addEventListener('click', function(e){ e.stopPropagation(); var o = l.classList.toggle('is-open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+  });
+  document.addEventListener('click', function(e){
+    Array.prototype.forEach.call(document.querySelectorAll('.al-lang.is-open'), function(l){ if(!l.contains(e.target)){ l.classList.remove('is-open'); l.querySelector('.al-lang-b').setAttribute('aria-expanded','false'); } });
+  });
+  /* deep link for review: #desk skips the intro */
+  if(location.hash === '#desk'){ started = true; noted = true; lightOn(); openDesk(); }
+})();
+</script>
