@@ -510,10 +510,10 @@ a.al-v:hover{text-decoration:underline}
     return {desk:d, mob:m, deskVideo: deskVideo ? b+'desktop-scroll.mp4' : '', deskScroll:b+'desktop-scroll.mp4', mobVideo:b+'mobile-scroll.mp4', thumb:d[0]};
   }
   var MEDIA = {
-    lind: en('lind', 13, 12, true),
-    kulagina: en('kulagina', 11, 12, true),
-    beauty: en('beauty', 13, 11, true),
-    yurmagrand: en('yurmagrand', 16, 14, true)
+    lind: en('lind', 8, 3, true, 'cases-ru'),
+    kulagina: en('kulagina', 11, 11, true, 'cases-ru'),
+    beauty: en('beauty', 12, 12, true, 'cases-ru'),
+    yurmagrand: en('yurmagrand', 22, 23, true, 'cases-ru')
   };
   var TRAVEL = []; for(var ti=1; ti<=31; ti++) TRAVEL.push('gallery/g' + (ti<10?'0':'') + ti + '.webp');
   var PROJECTS = [
@@ -799,7 +799,7 @@ a.al-v:hover{text-decoration:underline}
     return '<div class="al-browser"><div class="al-browser-bar"><i></i><i></i><i></i><span>'+esc(p.host)+'</span></div><div class="al-browser-view">'+inner+'</div></div>'+th;
   }
   function mobPane(p){
-    var m = MEDIA[p.id], sc = mobScreens(p), f = [sc[1],sc[2],sc[3],sc[4]];
+    var m = MEDIA[p.id], sc = mobScreens(p), f = sc.length >= 5 ? sc.slice(1,5) : sc.slice(0,4);
     return '<div class="al-stage">' + f.map(function(s,i){ return '<button type="button" class="al-fan f'+(i+1)+'" data-zoom="'+A+s+'"><img src="'+A+s+'" alt="" loading="lazy"></button>'; }).join('') +
       '<div class="al-iphone"><div class="al-iphone-s"><video src="'+A+m.mobVideo+'" poster="'+A+m.mobVideo.replace('.mp4','.webp')+'" muted loop playsinline preload="metadata"></video></div></div></div>';
   }
