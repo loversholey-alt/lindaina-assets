@@ -497,6 +497,7 @@ a.al-v:hover{text-decoration:underline}
 <script>
 (function(){
   var A = 'https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@833e7829f878165b73b5e78fa18e0d40ec3a6a57/';
+  var CAL_RU = 'https://static.tildacdn.com/tild3634-3637-4239-b761-393862316163/calendar-ru.png';
   var EMAIL = 'ayna.n@icloud.com', IG = 'https://www.instagram.com/aina_lind/';
 
   /* One list: a new project = one more entry here, it becomes a new folder */
@@ -559,7 +560,7 @@ a.al-v:hover{text-decoration:underline}
     {id:'notes', label:'Заметки', icon:'icons/notes.png', sq:true},
     {id:'photos', label:'Фото', icon:'icons/photos.png'},
     {id:'wallet', label:'Wallet', icon:'icons/wallet-mac.png'},
-    {id:'calendar', label:'Календарь', icon:'icons/calendar.png', sq:true},
+    {id:'calendar', label:'Календарь', icon:CAL_RU, sq:true},
     {sep:true},
     {id:'instagram', label:'Instagram', icon:'icons/instagram.png', href:IG},
     {id:'mail', label:'Почта', icon:'icons/mail.png', sq:true},
@@ -686,7 +687,7 @@ a.al-v:hover{text-decoration:underline}
     var el = document.createElement(a.href ? 'a' : 'button');
     if(a.href){ el.href = a.href; el.target = '_blank'; el.rel = 'noopener'; } else el.type = 'button';
     el.className = 'al-dk' + (a.sq ? ' is-sq' : ''); el.dataset.label = a.label; el.dataset.app = a.id; el.setAttribute('aria-label', a.label);
-    el.innerHTML = '<img src="'+A+a.icon+'" alt=""><span class="al-dk-dot"></span>';
+    el.innerHTML = '<img src="'+(/^https?:/.test(a.icon)?'':A)+a.icon+'" alt=""><span class="al-dk-dot"></span>';
     if(!a.href) el.addEventListener('click', function(){ openApp(a.id); });
     dock.appendChild(el);
   });
@@ -710,7 +711,7 @@ a.al-v:hover{text-decoration:underline}
   ['about','calendar','figma','behance','instagram','old'].forEach(function(id){
     var a = appById(id); if(!a) return;
     var el = document.createElement(a.href?'a':'button'); if(a.href){ el.href=a.href; el.target='_blank'; el.rel='noopener'; } else el.type='button';
-    el.className='al-app'; el.innerHTML='<span class="al-app-ic'+(a.sq?'':' is-pad')+'"><img src="'+A+a.icon+'" alt=""></span><span></span>';
+    el.className='al-app'; el.innerHTML='<span class="al-app-ic'+(a.sq?'':' is-pad')+'"><img src="'+(/^https?:/.test(a.icon)?'':A)+a.icon+'" alt=""></span><span></span>';
     el.lastChild.textContent = a.label; if(!a.href) el.addEventListener('click', function(){ openApp(id); }); apps.appendChild(el);
   });
   [['mail','icons/mail.png',1],['notes','icons/notes.png',1],['wallet','icons/wallet-mac.png',0],['photos','icons/photos.png',0]].forEach(function(x){
@@ -878,8 +879,8 @@ a.al-v:hover{text-decoration:underline}
       '<nav class="al-side"><button type="button" data-tab="about" class="is-on">Обо мне <i>'+ABOUT.can.length+'</i></button><button type="button" data-tab="cv">Резюме <i>'+(ABOUT.exp.length+PROJECTS.length+ABOUT.tools.length+ABOUT.edu.length)+'</i></button></nav><div class="al-main">'+notesPane('about')+'</div>',
       {split:true, thumb:A+'icons/notes.png', init:function(w){ w._pane = notesPane; sideNav(w); }});
     if(id==='photos'){
-      var nav = '<div class="al-side-h">Альбомы</div><button type="button" data-tab="travel" class="is-on">Путешествия <i>'+TRAVEL.length+'</i></button><div class="al-side-h">Проекты</div>' + PROJECTS.map(function(p){ var m = MEDIA[p.id]; return '<button type="button" data-tab="'+p.id+'">'+esc(p.title)+' <i>'+(m.desk.length+m.mob.length+2)+'</i></button>'; }).join('');
-      return win('photos','Галерея', '<nav class="al-side">'+nav+'</nav><div class="al-main">'+photosPane('travel')+'</div>',
+      var nav = '<div class="al-side-h">Проекты</div>' + PROJECTS.map(function(p,pi){ var m = MEDIA[p.id]; return '<button type="button" data-tab="'+p.id+'"'+(pi===0?' class="is-on"':'')+'>'+esc(p.title)+' <i>'+(m.desk.length+m.mob.length+2)+'</i></button>'; }).join('');
+      return win('photos','Галерея', '<nav class="al-side">'+nav+'</nav><div class="al-main">'+photosPane(PROJECTS[0].id)+'</div>',
         {split:true, thumb:A+'icons/photos.png', init:function(w){
           w._pane = photosPane; sideNav(w);
           w.querySelector('.al-main').addEventListener('click', function(e){
@@ -902,7 +903,7 @@ a.al-v:hover{text-decoration:underline}
     if(id==='calendar'){ var now = new Date(), y = now.getFullYear(), m = now.getMonth(), first = (new Date(y,m,1).getDay()+6)%7, days = new Date(y,m+1,0).getDate();
       var c = ['П','В','С','Ч','П','С','В'].map(function(x){ return '<span>'+x+'</span>'; }).join(''); for(var i=0;i<first;i++) c += '<b></b>';
       for(var d=1; d<=days; d++) c += '<b class="'+(d===now.getDate()?'is-today':'')+'">'+d+'</b>';
-      return win('calendar','Календарь','<div class="al-txt"><h2>'+cap(fmt({month:'long'}))+' '+y+'</h2><div class="al-mcal">'+c+'</div></div>', {small:true, thumb:A+'icons/calendar.png'}); }
+      return win('calendar','Календарь','<div class="al-txt"><h2>'+cap(fmt({month:'long'}))+' '+y+'</h2><div class="al-mcal">'+c+'</div></div>', {small:true, thumb:CAL_RU}); }
     if(id==='figma'){
       var layers = ['RU · Первый экран 1200 · v3','Юрмагранд · Главная · 1440','Юрмагранд · Главная · 390','Первый экран 1200 · v3','Услуги 1200 · с фото','Почему мы 1200','Акции 1200','Цены 1200','До и после 1200','Врачи 1200','Наши принципы 1200 · v3','Как мы лечим 1200 · v2','О клинике 1200','Отзывы 1200','Запись и контакты 1200','Подвал 1200','Компоненты'];
       return win('figma','Юрмагранд · Сайт · v3 · Figma',

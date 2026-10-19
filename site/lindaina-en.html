@@ -410,16 +410,16 @@ a.al-v:hover{text-decoration:underline}
 <div class="al" id="al">
   <!-- desktop / phone layer -->
   <div class="al-desk" aria-hidden="true" id="al-desk">
-    <img class="al-wall" src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop-poster.webp" alt="">
-    <video class="al-wall" id="al-wall" muted loop playsinline preload="metadata" poster="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop-poster.webp" aria-hidden="true">
-      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop.mp4" type="video/mp4">
-      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/wall-loop.webm" type="video/webm">
+    <img class="al-wall" src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/wall-loop-poster.webp" alt="">
+    <video class="al-wall" id="al-wall" muted loop playsinline preload="metadata" poster="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/wall-loop-poster.webp" aria-hidden="true">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/wall-loop.mp4" type="video/mp4">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/wall-loop.webm" type="video/webm">
     </video>
     <div class="al-veil"></div>
     <div class="al-desk-ui" id="al-ui">
       <header class="al-menu">
         <div class="al-menu-l">
-          <img src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/brand/app-icon-256.png" alt="">
+          <img src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/brand/app-icon-256.png" alt="">
           <b>Aina Lind</b>
           <button type="button" data-open="photos">Projects</button>
           <button type="button" data-open="about">About</button>
@@ -457,17 +457,17 @@ a.al-v:hover{text-decoration:underline}
 
   <!-- intro -->
   <div class="al-intro" id="al-intro" role="button" tabindex="0" aria-label="Pull the chain to turn on the light">
-    <video id="al-vid" muted playsinline preload="auto" poster="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro-dark.webp">
-      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro.mp4" type="video/mp4">
-      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro.webm" type="video/webm">
+    <video id="al-vid" muted playsinline preload="auto" poster="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/intro/intro-dark.webp">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/intro/intro.mp4" type="video/mp4">
+      <source src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/intro/intro.webm" type="video/webm">
     </video>
-    <img id="al-light" src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/intro/intro-light.webp" alt="">
+    <img id="al-light" src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/intro/intro-light.webp" alt="">
   </div>
 
   <!-- notification -->
   <div class="al-note glass" id="al-note" role="status" aria-live="polite" inert>
     <div class="al-note-row">
-      <span class="al-note-ic"><img src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/brand/app-icon-256.png" alt=""></span>
+      <span class="al-note-ic"><img src="https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/brand/app-icon-256.png" alt=""></span>
       <div class="al-note-txt">
         <div class="al-note-head"><b>Aina</b><span>now</span></div>
         <div class="al-note-body" id="al-note-body"></div>
@@ -495,7 +495,7 @@ a.al-v:hover{text-decoration:underline}
 
 <script>
 (function(){
-  var A = 'https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@main/';
+  var A = 'https://cdn.jsdelivr.net/gh/loversholey-alt/lindaina-assets@6e52051974a3c8dd365f532ffe5529cea8459eb7/';
   var EMAIL = 'ayna.n@icloud.com', IG = 'https://www.instagram.com/aina_lind/';
 
   /* One list: a new project = one more entry here, it becomes a new folder */
@@ -873,8 +873,8 @@ a.al-v:hover{text-decoration:underline}
       '<nav class="al-side"><button type="button" data-tab="about" class="is-on">About me <i>'+ABOUT.can.length+'</i></button><button type="button" data-tab="cv">CV <i>'+(ABOUT.exp.length+PROJECTS.length+ABOUT.tools.length+ABOUT.edu.length)+'</i></button></nav><div class="al-main">'+notesPane('about')+'</div>',
       {split:true, thumb:A+'icons/notes.png', init:function(w){ w._pane = notesPane; sideNav(w); }});
     if(id==='photos'){
-      var nav = '<div class="al-side-h">Albums</div><button type="button" data-tab="travel" class="is-on">Travel <i>'+TRAVEL.length+'</i></button><div class="al-side-h">Projects</div>' + PROJECTS.map(function(p){ var m = MEDIA[p.id]; return '<button type="button" data-tab="'+p.id+'">'+esc(p.title)+' <i>'+(m.desk.length+m.mob.length+2)+'</i></button>'; }).join('');
-      return win('photos','Gallery', '<nav class="al-side">'+nav+'</nav><div class="al-main">'+photosPane('travel')+'</div>',
+      var nav = '<div class="al-side-h">Projects</div>' + PROJECTS.map(function(p,pi){ var m = MEDIA[p.id]; return '<button type="button" data-tab="'+p.id+'"'+(pi===0?' class="is-on"':'')+'>'+esc(p.title)+' <i>'+(m.desk.length+m.mob.length+2)+'</i></button>'; }).join('');
+      return win('photos','Gallery', '<nav class="al-side">'+nav+'</nav><div class="al-main">'+photosPane(PROJECTS[0].id)+'</div>',
         {split:true, thumb:A+'icons/photos.png', init:function(w){
           w._pane = photosPane; sideNav(w);
           w.querySelector('.al-main').addEventListener('click', function(e){
